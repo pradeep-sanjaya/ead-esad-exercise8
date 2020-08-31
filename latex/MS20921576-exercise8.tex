@@ -1,0 +1,238 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SLIIT Metropolitan Campus
+% Enterprise Software Analysis & Design
+% SE5060: Exercise 6
+% Version 1.0 (2020-08-24)
+%
+% Authors:
+% Pradeep (sanjayangp@gmail.com)
+
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[12pt]{scrartcl} % Font size
+
+\input{structure.tex} % Include the file specifying the document structure and custom commands
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\title{	
+	\normalfont\normalsize
+	\textsc{Master of Science in Information Technology Specializing in Enterprise Applications Development}\\
+	\textsc{SLIIT Metropolitan Campus}\\
+	\textsc{BOC Merchant Tower, No \#28, St Michae\rq{}s Road,}\\
+	\textsc{Colombo 03, Sri Lanka}\\
+	\vspace{25pt} % Whitespace
+	\rule{\linewidth}{0.5pt}\\ % Thin top horizontal rule
+	\vspace{20pt} % Whitespace
+	{\huge Enterprise Software Analysis \& Design}\\
+	\textsc{SE5060: Exercise 8}\\
+	\vspace{12pt} % Whitespace
+	\rule{\linewidth}{2pt}\\ % Thick bottom horizontal rule
+	\vspace{12pt} % Whitespace
+}
+
+\author{\LARGE N. G. Pradeep Sanjaya\\
+	\small{MS20921576}
+} % Your name
+
+\date{\normalsize\today} % Today's date (\today) or a custom date
+
+\begin{document}
+
+\maketitle % Print the title
+
+\newpage
+\section*{Answer}
+Github - https://github.com/pradeep-sanjaya/ead-esad-exercise8
+
+\subsection*{Classes}
+
+
+\textbf{TestChainOfResponsibility.java}
+\lstset{language=Java}
+\begin{lstlisting}[frame=single]
+package com.sliit;
+
+import java.util.Scanner;
+
+public class TestChainOfResponsibility {
+  public static void main(String[] args) {
+    BestGradeHandler bestGradeHandler = new BestGradeHandler();
+    MeritGradeHandler meritGradeHandler = new MeritGradeHandler();
+    AverageGradeHandler averageGradeHandler = new AverageGradeHandler();
+    FailGradeHandler failGradeHandler = new FailGradeHandler();
+
+    bestGradeHandler.setSuccessor(meritGradeHandler);
+    meritGradeHandler.setSuccessor(averageGradeHandler);
+    averageGradeHandler.setSuccessor(failGradeHandler);
+
+    Scanner scanner = new Scanner(System.in);
+    while (true) {
+      System.out.print("\nExter marks for grade = ");
+      int marks = scanner.nextInt();
+      bestGradeHandler.processRequest(new GradeRequest(marks));
+    }
+
+  }
+}
+\end{lstlisting}
+
+
+\textbf{GradeRequest.java}
+\lstset{language=Java}
+\begin{lstlisting}[frame=single]
+package com.sliit;
+
+public class GradeRequest {
+
+  private int marks;
+
+  public GradeRequest(int marks) {
+    this.marks = marks;
+  }
+
+  public int getMarks() {
+    return marks;
+  }
+
+  public void setMarks(int marks) {
+    this.marks = marks;
+  }
+}
+\end{lstlisting}
+
+\textbf{GradeHandler.java}
+\lstset{language=Java}
+\begin{lstlisting}[frame=single]
+package com.sliit;
+
+public abstract class GradeHandler {
+
+  protected GradeHandler successor;
+
+  public GradeHandler getSuccessor() {
+    return successor;
+  }
+
+  public void setSuccessor(GradeHandler successor) {
+    this.successor = successor;
+  }
+
+  public abstract void processRequest(GradeRequest gradeRequest);
+}
+
+\end{lstlisting}
+
+\textbf{BestGradeHandler.java}
+\lstset{language=Java}
+\begin{lstlisting}[frame=single]
+package com.sliit;
+
+public class BestGradeHandler extends GradeHandler {
+  @Override
+  public void processRequest(GradeRequest gradeRequest) {
+    if (gradeRequest.getMarks() >= 80 && 
+        gradeRequest.getMarks() <= 100) {
+      System.out.println("Your grade is A for marks =" + 
+                         gradeRequest.getMarks());
+    }
+
+    if (getSuccessor() != null) {
+      getSuccessor().processRequest(gradeRequest);
+    }
+  }
+}
+
+\end{lstlisting}
+
+\textbf{MeritGradeHandler.java}
+\lstset{language=Java}
+\begin{lstlisting}[frame=single]
+package com.sliit;
+
+public class MeritGradeHandler extends GradeHandler {
+  @Override
+  public void processRequest(GradeRequest gradeRequest) {
+    if (gradeRequest.getMarks() >= 60 && 
+        gradeRequest.getMarks() < 80) {
+      System.out.println("Your grade is B for marks =" + 
+                         gradeRequest.getMarks());
+    }
+
+    if (getSuccessor() != null) {
+      getSuccessor().processRequest(gradeRequest);
+    }
+  }
+}
+
+\end{lstlisting}
+
+
+\textbf{AverageGradeHandler.java}
+\lstset{language=Java}
+\begin{lstlisting}[frame=single]
+package com.sliit;
+
+public class AverageGradeHandler extends GradeHandler {
+  @Override
+  public void processRequest(GradeRequest gradeRequest) {
+    if (gradeRequest.getMarks() >= 40 && 
+        gradeRequest.getMarks() < 60) {
+      System.out.println("Your grade is C for marks =" + 
+                         gradeRequest.getMarks());
+    }
+
+    if (getSuccessor() != null) {
+      getSuccessor().processRequest(gradeRequest);
+    }
+  }
+}
+\end{lstlisting}
+
+
+\textbf{FailGradeHandler.java}
+\lstset{language=Java}
+\begin{lstlisting}[frame=single]
+package com.sliit;
+
+public class FailGradeHandler extends GradeHandler {
+  @Override
+  public void processRequest(GradeRequest gradeRequest) {
+    if (gradeRequest.getMarks() < 40) {
+      System.out.println("You fail the module for marks =" 
+      + gradeRequest.getMarks());
+    }
+  }
+}
+
+\end{lstlisting}
+
+\subsection*{Screenshots}
+
+\begin{center}
+	\includegraphics[width=1.0\columnwidth]{./figures/01.png}
+	\captionof{figure}{Solution}\label{Solution}%
+\end{center}
+
+
+\pagebreak
+\newpage
+\begin{thebibliography}{00}
+	\raggedright
+	\bibitem{b1} Samarathunge, U. (2020) Lecture - 03 GOF Design Patterns Part I
+    \bibitem{b1} Samarathunge, U. (2020) Lecture - 03 GOF Design Patterns Part II-v2
+    \bibitem{b1} Samarathunge, U. (2020) Lecture - 03 GOF Design Patterns Part II With Answers
+\end{thebibliography}
+
+
+\end{document}
